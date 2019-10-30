@@ -1,3 +1,109 @@
+% This is a static force analysis of a 4th order Michell Truss. 
+% This script a matrix containing xyz coordinates of the fixed and 
+% free nodes, the connectivity matrix describing the connection between 
+% these nodes, and applied loads. For all matrices with coordinates (such
+% as P, Q, C the top row is x coordinates, 2nd row is y coordinates, and
+% each column is a node/member
+% 
+% This truss is designed so that all members in compression are 
+% bars and all members in tension are strings. 
+% 
+% Created: 10/30/19
+% Author : Zac Pyle
+% PID    : A12601746
+
 clear all;
 close all;
 clc;
+
+% ---------------------------------------------------
+%   Basic Variables
+% ---------------------------------------------------
+
+Phi   = pi/16;             % angle between rl's radiating from origin
+Beta  = pi/6;              % Angle between rl and pl
+q     = 10;                % Number of free nodes (nodes between members)
+p     = 5;                 % Number of fixed nodes (nodes on inner circle)
+b     = 10;                % Number of bars (should always be in compression
+s     = 10;                % Number of strings (should always be in tension
+r4     = 1;                 % The radius of the anchor circle (circle the fixed nodes of the truss will be mounted on)
+Theta = -pi/2:.1:6*pi/12;   % vector of theta values that will be useful for creating my circles
+Order = 4;
+
+% ---------------------------------------------------
+%   Define properties of the truss
+% ---------------------------------------------------
+
+a = sin(Beta)/sin(Beta + Phi);
+c = sin(Phi)/sin(Beta + Phi);
+n = q + p;
+m = b + s;
+
+% Anchor circle of truss
+r4x = r4*cos(Theta);
+r4y = r4*sin(Theta);
+
+% ---------------------------------------------------
+%   Create the Truss
+% ---------------------------------------------------
+
+for i = Order:-1:1
+    % Create radii
+    temp1 = "r" + (i-1) + " = " + "r" + i + " / a;";    
+    eval(temp1);  
+    
+    % Create xy coordinates for radii
+    temp2 = "r" + (i-1) + "x = r" + (i-1) + " * cos(Theta);";
+    temp3 = "r" + (i-1) + "y = r" + (i-1) + " * sin(Theta);";
+    eval(temp2);
+    eval(temp3);
+end
+    
+% Gather xy coordinates of circles together into matrices
+for i = 0:Order
+   xCircles(i+1,:) = eval( "r" + i + "x");
+   yCircles(i+1,:) = eval( "r" + i + "y");
+end
+
+% Create P Matrix (for fixed nodes on anchor circle)
+% This lists fixed nodes starting from the bottom, moving CCW
+P(:,1) = [r4 * cos(-4*Phi);
+          r4 * sin(-4*Phi)];
+P(:,2) = [r4 * cos(-2*Phi);
+          r4 * sin(-2*Phi)];
+P(:,3) = [r4;
+          0];
+P(:,4) = [r4 * cos(2*Phi);
+          r4 * sin(2*Phi)];
+P(:,5) = [r4 * cos(4*Phi);
+          r4 * sin(4*Phi)];
+      
+% Create Q Matrix (for free nodes on anchor circle)
+% This matrix lists the nodes by arm, not by radius. 
+% So each node in an arm is listed before switching 
+% to the next arm. 
+
+
+
+
+% ---------------------------------------------------
+%   Plot Truss for visualization purposes
+% ---------------------------------------------------
+
+figure(1);
+hold on;
+grid on;
+for i = 0:Order
+    if i == Order
+        plot(xCircles(i+1,:), yCircles(i+1,:), 'k', 'LineWidth', 2);
+    end
+   plot(xCircles(i+1,:), yCircles(i+1,:), 'k'); 
+end
+
+for i = -4:4
+    plot( [0 r0*cos(Phi*i)], [0 r0*sin(Phi*i)], 'k');
+end
+
+for i = 1:p
+    plot( P(1,i), P(2,i), 'go');
+end
