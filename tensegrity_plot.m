@@ -9,7 +9,7 @@ else
     for k=b+1:b+s, plot3([N(1,I(k)) N(1,J(k))],[N(2,I(k)) N(2,J(k))],[N(3,I(k)) N(3,J(k))],'k-','LineWidth',2), end
     view(19,14)
 end
-grid, axis equal, set(gca,'YTickLabel',[]); set(gca,'XTickLabel',[]); set(gca,'ZTickLabel',[]);
+grid, axis equal, %set(gca,'YTickLabel',[]); set(gca,'XTickLabel',[]); set(gca,'ZTickLabel',[]);
 
 range(1)=max(N(:,1))-min(N(:,1)); range(2)=max(N(:,2))-min(N(:,2));
 t=(0:1/3:1)'*2*pi; x=sin(t); y=cos(t);

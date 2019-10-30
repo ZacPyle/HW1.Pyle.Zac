@@ -26,9 +26,10 @@ q     = 10;                % Number of free nodes (nodes between members)
 p     = 5;                 % Number of fixed nodes (nodes on inner circle)
 b     = 10;                % Number of bars (should always be in compression
 s     = 10;                % Number of strings (should always be in tension
-r4     = 1;                 % The radius of the anchor circle (circle the fixed nodes of the truss will be mounted on)
 Theta = -pi/2:.1:6*pi/12;   % vector of theta values that will be useful for creating my circles
 Order = 4;
+dim   = 2;
+
 
 % ---------------------------------------------------
 %   Define properties of the truss
@@ -40,8 +41,14 @@ n = q + p;
 m = b + s;
 
 % Anchor circle of truss
-r4x = r4*cos(Theta);
-r4y = r4*sin(Theta);
+% r4x = r4*cos(Theta);
+% r4y = r4*sin(Theta);
+
+eval("r" + Order + " = 1;");   % The radius of the anchor circle (circle the fixed nodes of the truss will be mounted on)
+eval("r" + Order + "x = r" + Order + " * cos(Theta);");
+eval("r" + Order + "y = r" + Order + " * sin(Theta);");
+
+radMat = [eval("r" + Order)];
 
 % ---------------------------------------------------
 %   Create the Truss
@@ -59,10 +66,12 @@ for i = Order:-1:1
     eval(temp3);
 end
     
-% Gather xy coordinates of circles together into matrices
+% Gather xy coordinates of circles together into matrices and radii
 for i = 0:Order
    xCircles(i+1,:) = eval( "r" + i + "x");
    yCircles(i+1,:) = eval( "r" + i + "y");
+   
+   radMat = [eval("r" + i); radMat];
 end
 
 % Create P Matrix (for fixed nodes on anchor circle)
@@ -81,8 +90,15 @@ P(:,5) = [r4 * cos(4*Phi);
 % Create Q Matrix (for free nodes on anchor circle)
 % This matrix lists the nodes by arm, not by radius. 
 % So each node in an arm is listed before switching 
-% to the next arm. 
-
+% to the next arm.
+arm = 0;
+for j = 1:Order    
+    for i = 1:(Order - j + 1)
+    Q(1,arm + i) = radMat(i+1) * cos( (-4+((j-1)*2) + i)*Phi);
+    Q(2,arm + i) = radMat(i+1) * sin( (-4+((j-1)*2) + i)*Phi);
+    end
+    arm = arm + (Order - (j - 1));
+end
 
 
 
@@ -104,6 +120,5 @@ for i = -4:4
     plot( [0 r0*cos(Phi*i)], [0 r0*sin(Phi*i)], 'k');
 end
 
-for i = 1:p
-    plot( P(1,i), P(2,i), 'go');
-end
+plot(P(1,:), P(2,:), 'go');
+plot(Q(1,:), Q(2,:), 'g*');
