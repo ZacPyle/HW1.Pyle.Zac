@@ -26,13 +26,16 @@ q     = 10;                % Number of free nodes (nodes between members)
 p     = 5;                 % Number of fixed nodes (nodes on inner circle)
 b     = 10;                % Number of bars (should always be in compression
 s     = 10;                % Number of strings (should always be in tension
-Theta = -pi/2:.1:6*pi/12;   % vector of theta values that will be useful for creating my circles
-Order = 4;
-dim   = 2;
-n     = q + p;
-m     = b + s;
-Cq    = zeros(m, q);
+Theta = -pi/2:.1:6*pi/12;  % vector of theta values that will be useful for creating my circles
+Order = 4;                 % Order of the michell truss
+dim   = 2;                 % 2D or 3D analysis
+n     = q + p;             % Total number of nodes
+m     = b + s;             % Total number of members
+Cq    = zeros(m, q);       % Initialize various matrices for use later
 Cp    = zeros(m, p);
+P     = zeros(dim, p);
+Q     = zeros(dim, q);
+U     = zeros(dim, q);
 
 
 % ---------------------------------------------------
@@ -102,8 +105,8 @@ P(:,5) = [r4 * cos(4*Phi);
 arm = 0;
 for j = 1:Order    
     for i = 1:(Order - j + 1)
-    Q(1,arm + i) = radMat(i+1) * cos( (-4+((j-1)*2) + i)*Phi);
-    Q(2,arm + i) = radMat(i+1) * sin( (-4+((j-1)*2) + i)*Phi);
+        Q(1,arm + i) = radMat(i+1) * cos( (-4+((j-1)*2) + i)*Phi);
+        Q(2,arm + i) = radMat(i+1) * sin( (-4+((j-1)*2) + i)*Phi);
     end
     arm = arm + (Order - (j - 1));
 end
@@ -111,7 +114,7 @@ end
 % Create the C matrix. Do this by first creating Cp
 % and then creating Cq.
 
-% Create Cp
+% Create Bars portion of Cq
 count = 1;
 for i = 1:Order
     Cp(count, i) = -1;
@@ -123,25 +126,87 @@ for i = 1:Order
 end
 
 % Creat Cq
+for i = 1:q
+   Cq(i,i) = 1;
+   if all(i ~= [4 7 9])
+       Cq(i+1, i) = -1;
+   end
+end
 
+% Just finish the strings of Cq by hand, too lazy to figure out a modular
+% way to do it
+Cq(11, 10) = 1;
+Cq(12, 9)  = 1;
+Cq(12, 10) = -1;
+Cq(13, 7)  = 1;
+Cq(13, 9)  = -1;
+Cq(14, 7)  = -1;
+Cq(14, 4)  = 1;
+Cq(15, 8)  = 1;
+Cq(16, 6)  = 1;
+Cq(16, 8)  = -1;
+Cq(17, 3)  = 1;
+Cq(17, 6)  = -1;
+Cq(18, 5)  = 1;
+Cq(19, 2)  = 1;
+Cq(19, 5)  = -1;
+Cq(20, 1)  = 1;
+
+% now combine Cq and Cp
+C = [Cq Cp];
+
+
+% -------------------------------------------------------------------
+%   Create Applied Loads
+% -------------------------------------------------------------------
+
+% U matrix has vector forces applied to each free node, so it must
+% be a dim x q matrix. When the loads are all pointing straight down
+% that simulates the truss being mounted as seen in the graph. When
+% loads are all to the right that simulates the truss mounted pointing
+% straight down (rotated -90 degrees from as seen in the graph
+
+% Only apply a load straight down at the tip of the truss (free node 4)
+U1      = U;
+U1(2,4) = -2;
+
+% Only apply a load to the right at the tip of the truss (free node 4)
+U2      = U;
+U2(1,4) = 2;
+
+% apply a unit load to all free nodes straight down
+U3      = U;
+U3(2,:) = -1;
+
+% apply a unit load to all free nodes to the right
+U4      = U;
+U4(1,:) = 1;
+
+%
+% Now call tensegrity_Statics
+%
+[c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U1);
+tensegrity_plot(Q,P,C,b,s,U1,V,true,2.0); 
 
 % ---------------------------------------------------
 %   Plot Truss for visualization purposes
 % ---------------------------------------------------
 
-figure(1);
-hold on;
-grid on;
-for i = 0:Order
-    if i == Order
-        plot(xCircles(i+1,:), yCircles(i+1,:), 'k', 'LineWidth', 2);
-    end
-   plot(xCircles(i+1,:), yCircles(i+1,:), 'k'); 
-end
-
-for i = -4:4
-    plot( [0 r0*cos(Phi*i)], [0 r0*sin(Phi*i)], 'k');
-end
-
-plot(P(1,:), P(2,:), 'mo');
-plot(Q(1,:), Q(2,:), 'g*');
+% figure(1);
+% hold on;
+% grid on;
+% for i = 0:Order
+%     if i == Order
+%         plot(xCircles(i+1,:), yCircles(i+1,:), 'k', 'LineWidth', 2);
+%     end
+%    plot(xCircles(i+1,:), yCircles(i+1,:), 'k'); 
+% end
+% 
+% for i = -4:4
+%     plot( [0 r0*cos(Phi*i)], [0 r0*sin(Phi*i)], 'k');
+% end
+% 
+% 
+% 
+% plot(P(1,:), P(2,:), 'mo');
+% plot(Q(1,:), Q(2,:), 'g*');
