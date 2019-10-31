@@ -1,5 +1,5 @@
 % This is a static force analysis of a 4th order Michell Truss. 
-% This script a matrix containing xyz coordinates of the fixed and 
+% This script a matrix containing xy coordinates of the fixed and 
 % free nodes, the connectivity matrix describing the connection between 
 % these nodes, and applied loads. For all matrices with coordinates (such
 % as P, Q, C the top row is x coordinates, 2nd row is y coordinates, and
@@ -36,7 +36,6 @@ Cp    = zeros(m, p);
 P     = zeros(dim, p);
 Q     = zeros(dim, q);
 U     = zeros(dim, q);
-
 
 % ---------------------------------------------------
 %   Define properties of the truss
@@ -85,8 +84,6 @@ end
 
 % Create P Matrix (for fixed nodes on anchor circle)
 % This lists fixed nodes starting from the bottom, moving CCW
-% P(:,1) = [0;
-%           0];
 P(:,1) = [r4 * cos(-4*Phi);
           r4 * sin(-4*Phi)];
 P(:,2) = [r4 * cos(-2*Phi);
@@ -155,7 +152,6 @@ Cq(20, 1)  = 1;
 % now combine Cq and Cp
 C = [Cq Cp];
 
-
 % -------------------------------------------------------------------
 %   Create Applied Loads
 % -------------------------------------------------------------------
@@ -182,9 +178,9 @@ U3(2,:) = -1;
 U4      = U;
 U4(1,:) = 1;
 
-%
-% Now call tensegrity_Statics
-%
+% -------------------------------------------------------------
+%   Now call tensegrity_Statics
+% -------------------------------------------------------------
 [c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U1);
 tensegrity_plot(Q,P,C,b,s,U1,V,true,2.0); 
 
