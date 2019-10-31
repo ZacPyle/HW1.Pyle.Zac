@@ -110,6 +110,8 @@ end
 
 % Create the C matrix. Do this by first creating Cp
 % and then creating Cq.
+
+% Create Cp
 count = 1;
 for i = 1:Order
     Cp(count, i) = -1;
@@ -120,16 +122,7 @@ for i = 1:Order
    count = count + (Order-i+1);
 end
 
-% for i = 1:p-1
-%    Cp(i,1)    = -1;
-%    Cp(i, i+1) = 1;
-% end
-% 
-% count = p;
-% for i = 1:Order
-%    Cp(count, i+1) = -1;
-%    count = count + (Order - i+1);
-% end
+% Creat Cq
 
 
 % ---------------------------------------------------
