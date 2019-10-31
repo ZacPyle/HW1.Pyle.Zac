@@ -29,6 +29,10 @@ s     = 10;                % Number of strings (should always be in tension
 Theta = -pi/2:.1:6*pi/12;   % vector of theta values that will be useful for creating my circles
 Order = 4;
 dim   = 2;
+n     = q + p;
+m     = b + s;
+Cq    = zeros(m, q);
+Cp    = zeros(m, p);
 
 
 % ---------------------------------------------------
@@ -37,8 +41,6 @@ dim   = 2;
 
 a = sin(Beta)/sin(Beta + Phi);
 c = sin(Phi)/sin(Beta + Phi);
-n = q + p;
-m = b + s;
 
 % Anchor circle of truss
 % r4x = r4*cos(Theta);
@@ -51,7 +53,7 @@ eval("r" + Order + "y = r" + Order + " * sin(Theta);");
 radMat = [eval("r" + Order)];
 
 % ---------------------------------------------------
-%   Create the Truss
+%   Create the Truss Outline
 % ---------------------------------------------------
 
 for i = Order:-1:1
@@ -74,8 +76,14 @@ for i = 0:Order
    radMat = [eval("r" + i); radMat];
 end
 
+% ---------------------------------------------------
+%   Create P, Q, C matrices
+% ---------------------------------------------------
+
 % Create P Matrix (for fixed nodes on anchor circle)
 % This lists fixed nodes starting from the bottom, moving CCW
+% P(:,1) = [0;
+%           0];
 P(:,1) = [r4 * cos(-4*Phi);
           r4 * sin(-4*Phi)];
 P(:,2) = [r4 * cos(-2*Phi);
@@ -100,6 +108,28 @@ for j = 1:Order
     arm = arm + (Order - (j - 1));
 end
 
+% Create the C matrix. Do this by first creating Cp
+% and then creating Cq.
+count = 1;
+for i = 1:Order
+    Cp(count, i) = -1;
+    count = count + (Order-i+1);
+end
+for i = 1:Order
+   Cp(count, end-i+1) = -1;
+   count = count + (Order-i+1);
+end
+
+% for i = 1:p-1
+%    Cp(i,1)    = -1;
+%    Cp(i, i+1) = 1;
+% end
+% 
+% count = p;
+% for i = 1:Order
+%    Cp(count, i+1) = -1;
+%    count = count + (Order - i+1);
+% end
 
 
 % ---------------------------------------------------
@@ -120,5 +150,5 @@ for i = -4:4
     plot( [0 r0*cos(Phi*i)], [0 r0*sin(Phi*i)], 'k');
 end
 
-plot(P(1,:), P(2,:), 'go');
+plot(P(1,:), P(2,:), 'mo');
 plot(Q(1,:), Q(2,:), 'g*');
