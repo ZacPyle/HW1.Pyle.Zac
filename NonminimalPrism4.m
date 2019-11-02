@@ -17,7 +17,7 @@
 %           / |    / |
 %          6------7  |
 %          |  |   |  |
-%          |  | 9 |  |
+%          |  |   |  |
 %          |  1---|--4
 %          | /    | /
 %          |/     |/
@@ -37,10 +37,10 @@ clc;
 %   Basic Variables
 % --------------------------------------------------
 
-q   = 9;              % Number of free nodes
+q   = 8;              % Number of free nodes
 p   = 0;              % Number of fixed nodes
 b   = 4;              % Number of bars
-s   = 12;             % Number of strings
+s   = 24;             % Number of strings
 x   = 1;              % scale factor for x values
 y   = 1;              % Scale factor for y values
 z   = 1;              % scale factor for z values
@@ -72,7 +72,7 @@ Q(3,6) = z;
 Q(:,7) = [x; y; z];
 Q(2,8) = y;
 Q(3,8) = z;
-Q(:,9) = 0.5*[x; y; z];
+%Q(:,9) = 0.5*[x; y; z];
 
 % --------------------------------------------------
 %   Create C matric
@@ -102,10 +102,10 @@ Cq(8,1) = 1;
 Cq(8,4) = -1;
 
 % Create strings section of Cq on sides of prism
-for i = 1:4
-   Cq(b+4+i, i)   = -1;
-   Cq(b+4+i, i+4) = 1;
-end
+% for i = 1:4
+%    Cq(b+4+i, i)   = -1;
+%    Cq(b+4+i, i+4) = 1;
+% end
 
 % Create strings section of Cq on top of prism
 for i = 1:3
@@ -114,6 +114,34 @@ for i = 1:3
 end
 Cq(16,5) = -1;
 Cq(16,8) = 1;
+
+% Create the cross section strings on the sides now
+Cq(17,1) = -1;
+Cq(17,6) = 1;
+Cq(18,2) = -1;
+Cq(18,5) = 1;
+Cq(19,2) = -1;
+Cq(19,7) = 1;
+Cq(20,3) = -1;
+Cq(20,6) = 1;
+Cq(21,3) = -1;
+Cq(21,8) = 1;
+Cq(22,4) = -1;
+Cq(22,7) = 1;
+Cq(23,4) = -1;
+Cq(23,5) = 1;
+Cq(24,1) = -1;
+Cq(24,8) = 1;
+
+% Create cross section strings on top and bottom, starting with bottom
+Cq(25,1) = -1;
+Cq(25,3) = 1;
+Cq(26,2) = -1;
+Cq(26,4) = 1;
+Cq(27,5) = -1;
+Cq(27,7) = 1;
+Cq(28,6) = -1;
+Cq(28,8) = 1;
 
 C = [Cq Cp];
 
@@ -135,23 +163,24 @@ U2(3,5:8) = 1;
 % pointing towards center of cube
 U3 = U;
 U3(:,1) = [1/sqrt(3); 1/sqrt(3); 1/sqrt(3)];
+U3(:,2) = [1/sqrt(3); 1/sqrt(3); 1/sqrt(3)];
 U3(:,8) = [-1/sqrt(3); -1/sqrt(3); -1/sqrt(3)];
-
+U3(:,7) = [-1/sqrt(3); -1/sqrt(3); -1/sqrt(3)];
 
 % -------------------------------------------------------------
 %   Now call tensegrity_Statics
 % -------------------------------------------------------------
-[c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U3);
-tensegrity_plot(Q,P,C,b,s,U3,V,true,2.0); 
+[c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U1);
+tensegrity_plot(Q,P,C,b,s,U1,V,true,2.0); 
 
 % --------------------------------------------------
 %   Plot for Visualization
 % --------------------------------------------------
 
-figure(1);
-hold on;
-grid on;
-
-plot3(Q(1,:), Q(2,:), Q(3,:), 'go', 'MarkerSize', 12);
+% figure(1);
+% hold on;
+% grid on;
+% 
+% plot3(Q(1,:), Q(2,:), Q(3,:), 'go', 'MarkerSize', 12);
 
 
