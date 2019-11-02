@@ -181,8 +181,8 @@ U4(1,:) = 1;
 % -------------------------------------------------------------
 %   Now call tensegrity_Statics
 % -------------------------------------------------------------
-[c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U1);
-tensegrity_plot(Q,P,C,b,s,U1,V,true,2.0); 
+[c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U3);
+tensegrity_plot(Q,P,C,b,s,U3,V,true,2.0); 
 
 % ---------------------------------------------------
 %   Plot Truss for visualization purposes

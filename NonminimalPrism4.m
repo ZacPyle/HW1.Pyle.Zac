@@ -132,7 +132,7 @@ Cq(23,4) = -1;
 Cq(23,5) = 1;
 Cq(24,1) = -1;
 Cq(24,8) = 1;
-
+ 
 % Create cross section strings on top and bottom, starting with bottom
 Cq(25,1) = -1;
 Cq(25,3) = 1;
@@ -170,8 +170,8 @@ U3(:,7) = [-1/sqrt(3); -1/sqrt(3); -1/sqrt(3)];
 % -------------------------------------------------------------
 %   Now call tensegrity_Statics
 % -------------------------------------------------------------
-[c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U1);
-tensegrity_plot(Q,P,C,b,s,U1,V,true,2.0); 
+[c_bars,t_strings,V] = tensegrity_statics(b,s,q,p,dim,Q,P,C,U2);
+tensegrity_plot(Q,P,C,b,s,U2,V,true,2.0); 
 
 % --------------------------------------------------
 %   Plot for Visualization
